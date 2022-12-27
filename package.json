@@ -37,7 +37,10 @@
     "TypeScript",
     "GraphQL",
     "NodeJS",
-    "JavaScript"
+    "JavaScript",
+    "Type-GraphQL",
+    "Typegoose",
+    "Mongoose"
   ],
   "author": "Muhammad",
   "license": "ISC",
