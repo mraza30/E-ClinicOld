@@ -1,11 +1,18 @@
-import { Field, ID, ObjectType } from "type-graphql";
-import { getModelForClass, prop } from "@typegoose/typegoose";
+import { Field, ID, InterfaceType } from "type-graphql";
+import { getModelForClass, modelOptions, prop } from "@typegoose/typegoose";
 
+import { ModelMethods } from "../helper/mongoMethods";
 import { ObjectId } from "mongoose";
-import { UserRoles } from "./user.types";
+import { Patient } from "../patient/patient.model";
+import { UserRole } from "./user.types";
 
-@ObjectType()
-export class User {
+@InterfaceType({
+  resolveType: (user) => {
+    if (user.role === "PATIENT") return Patient;
+  },
+})
+@modelOptions({ schemaOptions: { discriminatorKey: "role", timestamps: true } })
+export class User extends ModelMethods {
   @Field(() => ID)
   _id: ObjectId;
 
@@ -36,9 +43,8 @@ export class User {
   @prop({ required: true, default: false })
   active: boolean;
 
-  @Field(() => UserRoles)
-  @prop({ enum: UserRoles, required: true })
-  role: UserRoles;
+  @Field(() => UserRole)
+  role: UserRole;
 
   @Field()
   createdAt: Date;
@@ -47,6 +53,4 @@ export class User {
   updatedAt: Date;
 }
 
-export const UserModel = getModelForClass(User, {
-  schemaOptions: { timestamps: true },
-});
+export const UserModel = getModelForClass(User);

@@ -1,0 +1,12 @@
+{
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/dist": true
+  },
+  "cSpell.words": ["maxlength"],
+  "explorer.sortOrder": "type",
+  "material-icon-theme.activeIconPack": "react",
+  "material-icon-theme.folders.theme": "specific",
+  "material-icon-theme.hidesExplorerArrows": false,
+  "material-icon-theme.opacity": 1
+}

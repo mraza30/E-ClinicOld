@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import * as dotenv from "dotenv";
 
-import { BuildSchema } from "./modules/schema";
+import { BuildSchema } from "./graphql/schema";
 import { ConnectDatabase } from "./utils/database";
 import { StartServer } from "./utils/server";
 
