@@ -1,12 +1,13 @@
-import { AdminResolver } from "./admin/admin.resolver";
-import { authChecker } from "./auth/auth";
+import { UserResolver } from "./user/user.resolver";
+import { authChecker } from "./auth/authChecker";
 import { buildSchema } from "type-graphql";
 
 export async function BuildSchema() {
   const schema = await buildSchema({
-    resolvers: [AdminResolver],
+    resolvers: [UserResolver],
     dateScalarMode: "isoDate",
     authChecker,
+    validate: { forbidUnknownValues: false },
   });
   return schema;
 }

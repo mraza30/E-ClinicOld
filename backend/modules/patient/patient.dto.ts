@@ -1,13 +1,14 @@
 import { Field, ObjectType } from "type-graphql";
-import { User, UserModel } from "../user/user.model";
 import {
   getDiscriminatorModelForClass,
   modelOptions,
   prop,
 } from "@typegoose/typegoose";
+import { User, UserModel, UserRole } from "../user/user.dto";
 
-import { UserRole } from "../user/user.types";
-
+/**
+ * Medication SubDocument and Object
+ */
 @ObjectType()
 @modelOptions({ schemaOptions: { _id: false } })
 export class Medication {
@@ -28,6 +29,9 @@ export class Medication {
   notes?: string;
 }
 
+/**
+ * EMR SubDocument and Object
+ */
 @ObjectType()
 @modelOptions({ schemaOptions: { _id: false } })
 export class EMR {
@@ -52,6 +56,9 @@ export class EMR {
   notes?: string;
 }
 
+/**
+ * Patient Model and Object inheriting User
+ */
 @ObjectType({ implements: User })
 export class Patient extends User {
   @Field(() => EMR, { nullable: true })

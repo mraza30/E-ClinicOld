@@ -1,11 +1,12 @@
 import bcrypt from "bcrypt";
 import { sign } from "jsonwebtoken";
 
-export abstract class ModelMethods {
+export abstract class UerMethods {
   async generateToken(this: any) {
     const payload = {
       _id: this._id,
       role: this.role,
+      active: this.active,
     };
     return process.env.JWT_SECRET
       ? sign(payload, process.env.JWT_SECRET, { expiresIn: "1h" })

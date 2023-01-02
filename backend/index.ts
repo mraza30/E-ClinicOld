@@ -1,10 +1,9 @@
 import "reflect-metadata";
 
-import * as dotenv from "dotenv";
-
-import { BuildSchema } from "./graphql/schema";
+import { BuildSchema } from "./modules/schema";
 import { ConnectDatabase } from "./utils/database";
 import { StartServer } from "./utils/server";
+import dotenv from "dotenv";
 
 dotenv.config();
 

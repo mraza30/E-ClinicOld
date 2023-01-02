@@ -1,4 +1,4 @@
 import { Resolver } from "type-graphql";
 
 @Resolver()
-export class PatientResolver {}
+export class DoctorResolver {}

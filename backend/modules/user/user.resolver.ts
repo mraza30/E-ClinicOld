@@ -10,17 +10,36 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import { PatientModel } from "../patient/patient.model";
+import {
+  User,
+  UserLoginInput,
+  UserModel,
+  UserRegisterInput,
+  UsersFilter,
+} from "./user.dto";
+import { AdminModel } from "../admin/admin.dto";
+import { PatientModel } from "../patient/patient.dto";
+import { DoctorModel } from "../doctor/doctor.dto";
+import { authChecker } from "../auth/authChecker";
 import { Context } from "../types";
-import { User, UserModel } from "./user.model";
-import { UserLoginInput, UserRegisterInput } from "./user.types";
 
 @Resolver(() => User)
 export class UserResolver {
   @Authorized("ADMIN")
   @Query(() => [User])
-  async users() {
-    return await UserModel.find();
+  async users(@Arg("filter", { nullable: true }) filter?: UsersFilter) {
+    if (filter)
+      var { sort, active, emailVerified, limit, mobileVerified, offset, role } =
+        filter;
+    return await UserModel.find({
+      role: role ?? ["ADMIN", "DOCTOR", "PATIENT"],
+      emailVerified: emailVerified ?? [true, false],
+      mobileVerified: mobileVerified ?? [true, false],
+      active: active ?? [true, false],
+    })
+      .sort({ ["createdAt"]: sort ?? "desc" })
+      .skip(offset ?? 0)
+      .limit(limit ?? 100);
   }
 
   @Authorized("ADMIN")
@@ -29,14 +48,14 @@ export class UserResolver {
     return await UserModel.findById(_id);
   }
 
-  @Authorized("PATIENT", "DOCTOR")
+  @Authorized("ADMIN", "PATIENT", "DOCTOR")
   @Query(() => User)
   async me(@Ctx() { req }: Context) {
     return UserModel.findById(req.user._id);
   }
 
-  @Query(() => User)
-  async userLogin(
+  @Mutation(() => User)
+  async login(
     @Args() { email, password }: UserLoginInput,
     @Ctx() { res }: Context
   ) {
@@ -50,13 +69,30 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  async newUser(@Arg("input") { role, password, ...rest }: UserRegisterInput) {
+  async newUser(
+    @Arg("input") { role, password, ...rest }: UserRegisterInput,
+    @Ctx() { req }: Context
+  ) {
     if (role === "PATIENT")
       return await PatientModel.create({
         ...rest,
         password: await UserModel.hashPassword(password),
       });
-    else if (role === "DOCTOR") return {};
+    else if (role === "DOCTOR")
+      return await DoctorModel.create({
+        ...rest,
+        password: await UserModel.hashPassword(password),
+      });
+    else if (
+      role === "ADMIN" &&
+      (await authChecker({ context: { req } }, ["ADMIN"]))
+    )
+      return await AdminModel.create({
+        ...rest,
+        password: await UserModel.hashPassword(password),
+      });
+    else
+      throw new ApolloError("you may not be authorized to perform this action");
   }
 
   @Authorized("ADMIN")
