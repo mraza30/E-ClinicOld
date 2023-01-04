@@ -12,9 +12,9 @@ import { ObjectId } from "mongoose";
 import {
   IsEmail,
   IsPhoneNumber,
-  IsStrongPassword,
   Length,
   IsPositive,
+  MinLength,
 } from "class-validator";
 import { UerMethods } from "./user.methods";
 
@@ -111,7 +111,7 @@ export class UserRegisterInput implements Partial<User> {
   phoneNo: string;
 
   @Field()
-  @IsStrongPassword()
+  @MinLength(8)
   password: string;
 
   @Field(() => UserRole)
@@ -154,6 +154,6 @@ export class UserLoginInput implements Partial<User> {
   email: string;
 
   @Field()
-  @IsStrongPassword()
+  @MinLength(8)
   password: string;
 }

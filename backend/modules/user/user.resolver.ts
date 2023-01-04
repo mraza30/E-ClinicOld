@@ -91,14 +91,13 @@ export class UserResolver {
         ...rest,
         password: await UserModel.hashPassword(password),
       });
-    else
-      throw new ApolloError("you may not be authorized to perform this action");
+    throw new ApolloError("you may not be authorized to perform this action");
   }
 
   @Authorized("ADMIN")
-  @Mutation(() => Boolean)
+  @Mutation(() => User)
   async deleteUser(@Arg("_id", () => ID) _id: ObjectId) {
     const user = await UserModel.findByIdAndDelete(_id);
-    return user ? true : false;
+    return user;
   }
 }
