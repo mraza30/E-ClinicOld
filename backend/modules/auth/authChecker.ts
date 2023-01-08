@@ -1,14 +1,10 @@
 import { AuthChecker } from "type-graphql";
-import { Context } from "../types";
+import { Context } from "../../types";
 import { verifyJwt } from "./jwt";
 
-/**
- * AuthChecker Definition for @Authorized Decorator
- * !: AuthChecker<Context, string> removed to use function separately other than as decorator
- */
-export const authChecker = async (
-  { context: { req } }: any,
-  roles: string[]
+export const authChecker: AuthChecker<Context, string> = async (
+  { context: { req } },
+  roles
 ) => {
   const decode = await verifyJwt(req);
   if (decode) {

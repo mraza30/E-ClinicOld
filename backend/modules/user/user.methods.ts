@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import { compare, genSalt, hash } from "bcrypt";
 import { sign } from "jsonwebtoken";
 
 export abstract class UerMethods {
@@ -14,11 +14,11 @@ export abstract class UerMethods {
   }
 
   static async hashPassword(password: string) {
-    const salt = await bcrypt.genSalt(10);
-    return await bcrypt.hash(password, salt);
+    const salt = await genSalt(10);
+    return await hash(password, salt);
   }
 
   async comparePassword(this: any, password: string) {
-    return await bcrypt.compare(password, this.password);
+    return await compare(password, this.password);
   }
 }

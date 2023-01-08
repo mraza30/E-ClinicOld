@@ -13,13 +13,11 @@ export async function verifyJwt(req: Request) {
         verify(token, process.env.JWT_SECRET)
       );
 
-      req.user = {
+      return (req.user = {
         _id,
         role,
         active,
-      };
-
-      return { ...req.user };
+      });
     }
   } catch (error) {}
   return false;

@@ -1,4 +1,4 @@
-import { ApolloError } from "apollo-server-express";
+import { GraphQLError } from "graphql";
 import { ObjectId } from "mongoose";
 import {
   Arg,
@@ -10,18 +10,15 @@ import {
   Query,
   Resolver,
 } from "type-graphql";
-import {
-  User,
-  UserLoginInput,
-  UserModel,
-  UserRegisterInput,
-  UsersFilter,
-} from "./user.dto";
-import { AdminModel } from "../admin/admin.dto";
-import { PatientModel } from "../patient/patient.dto";
-import { DoctorModel } from "../doctor/doctor.dto";
-import { authChecker } from "../auth/authChecker";
-import { Context } from "../types";
+
+import { Context } from "../../types";
+import { AdminModel } from "../admin/admin.model";
+import { DoctorModel } from "../doctor/doctor.model";
+import { PatientModel } from "../patient/patient.model";
+import { NewUserInput } from "./types/newUser.input";
+import { UserLoginInput } from "./types/userLogin.args";
+import { UsersFilter } from "./types/usersFilter.input";
+import { User, UserModel } from "./user.model";
 
 @Resolver(() => User)
 export class UserResolver {
@@ -65,12 +62,12 @@ export class UserResolver {
       token && res.header("X-Auth-Token", token);
       return user;
     }
-    throw new ApolloError("invalid credentials");
+    throw new GraphQLError("invalid credentials");
   }
 
   @Mutation(() => User)
   async newUser(
-    @Arg("input") { role, password, ...rest }: UserRegisterInput,
+    @Arg("input") { role, password, ...rest }: NewUserInput,
     @Ctx() { req }: Context
   ) {
     if (role === "PATIENT")
@@ -85,13 +82,14 @@ export class UserResolver {
       });
     else if (
       role === "ADMIN" &&
+      /*@ts-ignore*/
       (await authChecker({ context: { req } }, ["ADMIN"]))
     )
       return await AdminModel.create({
         ...rest,
         password: await UserModel.hashPassword(password),
       });
-    throw new ApolloError("you may not be authorized to perform this action");
+    throw new GraphQLError("you may not be authorized to perform this action");
   }
 
   @Authorized("ADMIN")

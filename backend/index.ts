@@ -1,9 +1,10 @@
 import "reflect-metadata";
 
+import dotenv from "dotenv";
+
 import { BuildSchema } from "./modules/schema";
 import { ConnectDatabase } from "./utils/database";
 import { StartServer } from "./utils/server";
-import dotenv from "dotenv";
 
 dotenv.config();
 

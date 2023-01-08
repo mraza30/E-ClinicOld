@@ -1,40 +1,37 @@
-import cors, { CorsOptions } from "cors";
-
-import { ApolloServer } from "apollo-server-express";
-import { ApolloServerPluginDrainHttpServer } from "apollo-server-core";
-import Express from "express";
+import bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
 import { GraphQLSchema } from "graphql";
 import http from "http";
 
-const corsOptions: CorsOptions = {
-  origin: ["http://localhost:3000", "https://studio.apollographql.com"],
-  credentials: true,
-  exposedHeaders: "X-AUTH-TOKEN",
-};
+import { ApolloServer } from "@apollo/server";
+import { expressMiddleware } from "@apollo/server/express4";
+import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+
+import { Context } from "../types";
 
 export async function StartServer(schema: GraphQLSchema, port: number = 3000) {
-  const app = Express();
+  const app = express();
 
   const httpServer = http.createServer(app);
 
-  const server = new ApolloServer({
+  const server = new ApolloServer<Context>({
     schema,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
-    context: ({ req, res }) => ({
-      req,
-      res,
-    }),
   });
 
   await server.start();
 
-  app.use(cors(corsOptions));
+  app.use(
+    "/",
+    cors<cors.CorsRequest>(),
+    bodyParser.json(),
 
-  server.applyMiddleware({ app });
+    expressMiddleware(server, {
+      context: async ({ req, res }) => ({ req, res }),
+    })
+  );
 
   await new Promise<void>((resolve) => httpServer.listen({ port }, resolve));
-
-  console.log(
-    `🚀 Server ready at http://localhost:${port + server.graphqlPath}`
-  );
+  console.log(`🚀 Server ready at http://localhost:${port}/`);
 }

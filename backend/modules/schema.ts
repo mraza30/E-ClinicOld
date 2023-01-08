@@ -7,7 +7,7 @@ export async function BuildSchema() {
     resolvers: [UserResolver],
     dateScalarMode: "isoDate",
     authChecker,
-    validate: { forbidUnknownValues: false },
+    //validate: { forbidUnknownValues: false },
   });
   return schema;
 }
